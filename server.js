@@ -2,7 +2,33 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import leadsRouter from "./src/routes/lead.js";
+import cors from "cors";
+import express from "express";
+
+const app = express();
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://med-license-inky.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests without an Origin header, such as server-to-server calls.
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
+app.use(express.json());
 
 const currentFile = fileURLToPath(import.meta.url);
 const currentDir = dirname(currentFile);
