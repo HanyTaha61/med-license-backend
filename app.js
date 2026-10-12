@@ -49,11 +49,12 @@ export function createApp() {
     },
   });
 
-  
+
   app.use("/api/leads", leadLimiter, leadRoutes);
   app.use("/api/leads", leadRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
-  return app;
+  // return app;
 }
+export default app;
