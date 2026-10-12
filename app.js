@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-
+import { connectDatabase } from "./src/config/db.js";
 import leadRoutes from "./src/routes/lead.js";
 import {
   errorHandler,
@@ -40,21 +40,24 @@ export function createApp() {
   );
 
   // Handle browser preflight requests.
-  app.options(/.*/, cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error("Origin not allowed by CORS"));
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }));
+  app.options(
+    /.*/,
+    cors({
+      origin(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+        return callback(new Error("Origin not allowed by CORS"));
+      },
+      credentials: true,
+      methods: ["GET", "POST", "PATCH", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    }),
+  );
 
   app.use(express.json({ limit: "30kb" }));
 
-  app.get("/api/v1/health", (req, res) => {
+  app.get("/api/health", (req, res) => {
     res.json({
       success: true,
       service: "medlicense-api",
@@ -71,6 +74,20 @@ export function createApp() {
       success: false,
       message: "Too many requests. Please try again later.",
     },
+  });
+
+  // Inside createApp(), before registering API routes:
+  app.use("/api", async (req, res, next) => {
+    try {
+      await connectDatabase();
+      next();
+    } catch (error) {
+      console.error("Database connection failed:", error.message);
+      res.status(503).json({
+        success: false,
+        message: "Database temporarily unavailable",
+      });
+    }
   });
 
   // Register the lead routes only once.

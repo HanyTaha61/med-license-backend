@@ -8,13 +8,13 @@ dotenv.config();
 const port = Number(process.env.PORT || 6500);
 
 try {
-  console.log("MongoDB URI is configured:", Boolean(process.env.MONGODB_URI));
+  console.log("✅ MongoDB URI is configured:", Boolean(process.env.MONGODB_URI));
 
   await connectDatabase();
 
   const app = createApp();
   const server = app.listen(port, () => {
-    console.log(`MedLicense API listening on port ${port}`);
+    console.log(`✅ MedLicense API listening on port ${port}`);
   });
 
   const shutdown = (signal) => {
