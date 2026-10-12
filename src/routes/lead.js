@@ -7,7 +7,7 @@ const router = Router();
 
 const leadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 5,
+  limit: 10,
   standardHeaders: true,
   legacyHeaders: false,
   message: {

@@ -5,36 +5,86 @@ import { dirname, resolve } from "node:path";
 import cors from "cors";
 import express from "express";
 
+dotenv.config();
 const app = express();
+app.use(express.json());
+
+// const allowedOrigins = [
+//   "http://localhost:5173",
+//   "https://med-license-inky.vercel.app",
+// ];
+
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       // Allow requests without an Origin header, such as server-to-server calls.
+//       if (!origin || allowedOrigins.includes(origin)) {
+//         return callback(null, true);
+//       }
+
+//       return callback(new Error(`CORS blocked for origin: ${origin}`));
+//     },
+//     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//     credentials: true,
+//   })
+// );
 
 const allowedOrigins = [
   "http://localhost:5173",
   "https://med-license-inky.vercel.app",
 ];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests without an Origin header, such as server-to-server calls.
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
 
-      return callback(new Error(`CORS blocked for origin: ${origin}`));
-    },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
+    console.error("❌ Blocked by CORS:", origin);
+    return callback(new Error(`CORS blocked origin: ${origin}`));
+  },
 
-app.use(express.json());
+  credentials: true,
 
-const currentFile = fileURLToPath(import.meta.url);
-const currentDir = dirname(currentFile);
+  methods: [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
+  ],
 
-// Always load the .env file located beside server.js
-dotenv.config({ path: resolve(currentDir, ".env") });
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+  ],
+};
+
+app.use(cors(corsOptions));
+
+app.options("*", cors(corsOptions));
+
+app.use("/api", async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("❌ Database connection failed:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Database connection failed",
+    });
+  }
+});
+
+// const currentFile = fileURLToPath(import.meta.url);
+// const currentDir = dirname(currentFile);
+
+// // Always load the .env file located beside server.js
+// dotenv.config({ path: resolve(currentDir, ".env") });
 
 const { createApp } = await import("./app.js");
 const { connectDatabase } = await import("./src/config/db.js");

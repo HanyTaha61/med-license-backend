@@ -40,7 +40,7 @@ export function createApp() {
 
   const leadLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 8,
+    limit: 10,
     standardHeaders: "draft-7",
     legacyHeaders: false,
     message: {
