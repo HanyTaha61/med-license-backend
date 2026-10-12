@@ -8,8 +8,9 @@ import {
   notFoundHandler,
 } from "./src/middleware/errorHandler.js";
 
+const app = express();
+
 export function createApp() {
-  const app = express();
   app.disable("x-powered-by");
   app.use(helmet());
   app.use(express.json({ limit: "20kb" }));
