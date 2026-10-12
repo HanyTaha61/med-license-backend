@@ -11,8 +11,8 @@ try {
   console.log("MongoDB URI configured:", Boolean(process.env.MONGODB_URI));
 
   await connectDatabase();
-  const app = createApp();
 
+  const app = createApp();
   const server = app.listen(port, () => {
     console.log(`MedLicense API listening on port ${port}`);
   });
