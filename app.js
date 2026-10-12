@@ -56,6 +56,6 @@ export function createApp() {
 
   app.use(notFoundHandler);
   app.use(errorHandler);
-  // return app;
 }
+
 export default app;
