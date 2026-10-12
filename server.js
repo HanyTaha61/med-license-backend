@@ -11,7 +11,6 @@ try {
   console.log("MongoDB URI configured:", Boolean(process.env.MONGODB_URI));
 
   await connectDatabase();
-
   const app = createApp();
 
   const server = app.listen(port, () => {
